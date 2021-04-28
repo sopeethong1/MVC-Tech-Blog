@@ -1,110 +1,51 @@
   
 const router = require('express').Router();
-const { Blog, User, Comment } = require('../../models');
-const sequelize = require('../../config/connection');
+const { Comment } = require('../../models');
 const withAuth = require('../../utils/auth');
 
 router.get('/', (req, res) => {
-    blog.findAll({
-        attributes: [
-            'id',
-            'title',
-            'created_at',
-            'blog_content'
-        ],
-      order: [['created_at', 'DESC']],
-      include: [
-        {
-          model: Comment,
-          attributes: ['id', 'comment_text', 'blog_id', 'user_id', 'created_at'],
-          include: {
-            model: User,
-            attributes: ['username', 'twitter', 'github']
-          }
-        },
-        {
-          model: User,
-          attributes: ['username', 'twitter', 'github']
-        },
-      ]
-    })
-      .then(dbblogData => res.json(dbblogData))
-      .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-      });
-  });
-
-  router.get('/:id', (req, res) => {
-    blog.findOne({
-      where: {
-        id: req.params.id
-      },
-      attributes: [
-        'id',
-        'title',
-        'created_at',
-        'blog_content'
-      ],
-      include: [
-       
-        {
-          model: User,
-          attributes: ['username', 'twitter', 'github']
-        },
-        {
-          model: Comment,
-          attributes: ['id', 'comment_text', 'blog_id', 'user_id', 'created_at'],
-          include: {
-            model: User,
-            attributes: ['username', 'twitter', 'github']
-          }
-        }
-      ]
-    })
-      .then(dbblogData => {
-        if (!dbblogData) {
-          res.status(404).json({ message: 'No blog found with this id' });
-          return;
-        }
-        res.json(dbblogData);
-      })
-      .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-      });
-  });
-  router.blog('/', withAuth, (req, res) => {
-    blog.create({
-      title: req.body.title,
-      blog_content: req.body.blog_content,
-      user_id: req.session.user_id
-    })
-      .then(dbblogData => res.json(dbblogData))
+    Comment.findAll({})
+      .then(dbCommentData => res.json(dbCommentData))
       .catch(err => {
         console.log(err);
         res.status(500).json(err);
       });
 });
-router.put('/:id', withAuth, (req, res) => {
-    blog.update({
-        title: req.body.title,
-        blog_content: req.body.blog_content
-      },
-      {
+
+router.blog('/', withAuth, (req, res) => {
+
+  if (req.session) {
+    Comment.create({
+      comment_text: req.body.comment_text,
+      blog_id: req.body.blog_id,
+     
+      user_id: req.session.user_id,
+    })
+      .then(dbCommentData => res.json(dbCommentData))
+      .catch(err => {
+        console.log(err);
+        res.status(400).json(err);
+      });
+  }
+});
+
+router.delete('/:id', withAuth, (req, res) => {
+    Comment.destroy({
         where: {
           id: req.params.id
         }
       })
-      .then(dbblogData => {
-        if (!dbblogData) {
-          res.status(404).json({ message: 'No blog found with this id' });
-          return;
-        }
-        res.json(dbblogData);
-      })
-      .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-      });
-  });
+        .then(dbCommentData => {
+          if (!dbCommentData) {
+            res.status(404).json({ message: 'No comment found with this id' });
+            return;
+          }
+          res.json(dbCommentData);
+        })
+        .catch(err => {
+          console.log(err);
+          res.status(500).json(err);
+        });
+});
+
+module.exports = router;

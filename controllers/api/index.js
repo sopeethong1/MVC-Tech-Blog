@@ -1,8 +1,8 @@
-const path = require('path');
-const express = require('express');
-const session = require('express-session');
-const exphbs = require('express-handlebars');
-const routes = require('./controllers');
-const helpers = require('./utils/helpers');
+const router = require('express').Router();
+const userRoutes = require('./userRoutes');
+const projectRoutes = require('./projectRoutes');
 
-const sequelize = require('./config/connection');
+router.use('/users', userRoutes);
+router.use('/projects', projectRoutes);
+
+module.exports = router;

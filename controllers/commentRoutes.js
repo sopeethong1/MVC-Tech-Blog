@@ -5,18 +5,18 @@ const sequelize = require('../../config/connection');
 const withAuth = require('../../utils/auth');
 
 router.get('/', (req, res) => {
-    Post.findAll({
+    blog.findAll({
         attributes: [
             'id',
             'title',
             'created_at',
-            'post_content'
+            'blog_content'
         ],
       order: [['created_at', 'DESC']],
       include: [
         {
           model: Comment,
-          attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+          attributes: ['id', 'comment_text', 'blog_id', 'user_id', 'created_at'],
           include: {
             model: User,
             attributes: ['username', 'twitter', 'github']
@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
         },
       ]
     })
-      .then(dbPostData => res.json(dbPostData))
+      .then(dbblogData => res.json(dbblogData))
       .catch(err => {
         console.log(err);
         res.status(500).json(err);
@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
   });
 
   router.get('/:id', (req, res) => {
-    Post.findOne({
+    blog.findOne({
       where: {
         id: req.params.id
       },
@@ -44,7 +44,7 @@ router.get('/', (req, res) => {
         'id',
         'title',
         'created_at',
-        'post_content'
+        'blog_content'
       ],
       include: [
        
@@ -54,7 +54,7 @@ router.get('/', (req, res) => {
         },
         {
           model: Comment,
-          attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+          attributes: ['id', 'comment_text', 'blog_id', 'user_id', 'created_at'],
           include: {
             model: User,
             attributes: ['username', 'twitter', 'github']
@@ -62,27 +62,49 @@ router.get('/', (req, res) => {
         }
       ]
     })
-      .then(dbPostData => {
-        if (!dbPostData) {
-          res.status(404).json({ message: 'No post found with this id' });
+      .then(dbblogData => {
+        if (!dbblogData) {
+          res.status(404).json({ message: 'No blog found with this id' });
           return;
         }
-        res.json(dbPostData);
+        res.json(dbblogData);
       })
       .catch(err => {
         console.log(err);
         res.status(500).json(err);
       });
   });
-  router.post('/', withAuth, (req, res) => {
-    Post.create({
+  router.blog('/', withAuth, (req, res) => {
+    blog.create({
       title: req.body.title,
-      post_content: req.body.post_content,
+      blog_content: req.body.blog_content,
       user_id: req.session.user_id
     })
-      .then(dbPostData => res.json(dbPostData))
+      .then(dbblogData => res.json(dbblogData))
       .catch(err => {
         console.log(err);
         res.status(500).json(err);
       });
 });
+router.put('/:id', withAuth, (req, res) => {
+    blog.update({
+        title: req.body.title,
+        blog_content: req.body.blog_content
+      },
+      {
+        where: {
+          id: req.params.id
+        }
+      })
+      .then(dbblogData => {
+        if (!dbblogData) {
+          res.status(404).json({ message: 'No blog found with this id' });
+          return;
+        }
+        res.json(dbblogData);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  });

@@ -1,37 +1,133 @@
 const router = require('express').Router();
-const { blog } = require('../../models');
+const { Blog, User, Comment } = require('../../models');
+const sequelize = require('../../config/connection');
+const withAuth = require('../../utils/auth');
 
-router.post('/', async (req, res) => {
-  try {
-    const newblog = await blog.create({
-      ...req.body,
-      user_id: req.session.user_id,
-    });
+router.get('/', (req, res) => {
+    console.log('======================');
+    Blog.findAll({
+        attributes: [
+            'id',
+            'title',
+            'created_at',
+            'blog_content'
+        ],
+      order: [['created_at', 'DESC']],
+      include: 
+        {
+          model: Comment,
+          attributes: ['id', 'comment_text', 'blog_id', 'user_id', 'created_at'],
+          include: {
+            model: User,
+            attributes: ['username', 'twitter', 'github']
+          }
+        },
+        {
+          model: User,
+          attributes: ['username', 'twitter', 'github']
+        },
+      ]
+    })
+      .then(dbblogData => res.json(dbblogData))
+      .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  });
 
-    res.status(200).json(newblog);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-});
-
-router.delete('/:id', async (req, res) => {
-  try {
-    const blogData = await blog.destroy({
+  router.get('/:id', (req, res) => {
+    Blog.findOne({
       where: {
-        id: req.params.id,
-        user_id: req.session.user_id,
+        id: req.params.id
       },
-    });
+      attributes: [
+        'id',
+        'title',
+        'created_at',
+        'blog_content'
+      ],
+      include: [
+        // include the Comment model here:
+        {
+          model: User,
+          attributes: ['username', 'twitter', 'github']
+        },
+        {
+          model: Comment,
+          attributes: ['id', 'comment_text', 'blog_id', 'user_id', 'created_at'],
+          include: {
+            model: User,
+            attributes: ['username', 'twitter', 'github']
+          }
+        }
+      ]
+    })
+      .then(dbblogData => {
+        if (!dbblogData) {
+          res.status(404).json({ message: 'No blog found with this id' });
+          return;
+        }
+        res.json(dbblogData);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  });
 
-    if (!blogData) {
-      res.status(404).json({ message: 'No blog found with this id!' });
-      return;
-    }
-
-    res.status(200).json(blogData);
-  } catch (err) {
-    res.status(500).json(err);
-  }
+router.blog('/', withAuth, (req, res) => {
+    Blog.create({
+      title: req.body.title,
+      blog_content: req.body.blog_content,
+      user_id: req.session.user_id
+    })
+      .then(dbblogData => res.json(dbblogData))
+      .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+      });
 });
 
-module.exports = router;
+router.put('/:id', withAuth, (req, res) => {
+    Blog.update({
+        title: req.body.title,
+        blog_content: req.body.blog_content
+      },
+      {
+        where: {
+          id: req.params.id
+        }
+      })
+      .then(dbblogData => {
+        if (!dbblogData) {
+          res.status(404).json({ message: 'No blog found with this id' });
+          return;
+        }
+        res.json(dbblogData);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  });
+
+  router.delete('/:id', withAuth, (req, res) => {
+    Blog.destroy({
+      where: {
+        id: req.params.id
+      }
+    })
+      .then(dbblogData => {
+        if (!dbblogData) {
+          res.status(404).json({ message: 'No blog found with this id' });
+          return;
+        }
+        res.json(dbblogData);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  });
+
+  module.exports = router;

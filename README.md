@@ -47,7 +47,7 @@ THEN I am automatically signed out of the site
 ```
 
 ## Active Heroku Deployment Link
-[link] Placeholder 
+[link] https://frozen-spire-56862.herokuapp.com/ 
 
  ## Questions
   * github username: sopeethong1 

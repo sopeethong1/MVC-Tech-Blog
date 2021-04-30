@@ -36,4 +36,4 @@ Blog.init(
   }
 );
 
-module.exports = blog;
+module.exports = Blog;

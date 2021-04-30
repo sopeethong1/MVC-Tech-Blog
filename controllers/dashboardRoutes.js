@@ -1,8 +1,8 @@
   
 const router = require('express').Router();
-const { blog, User, Comment } = require('../../models');
+const { Blog, User, Comment } = require('../models');
 const sequelize = require('../config/connection');
-const withAuth = require('../../utils/auth');
+const withAuth = require('../utils/auth');
 
 
 
@@ -77,7 +77,7 @@ router.get('/', (req, res) => {
       });
   });
 
-router.blog('/', withAuth, (req, res) => {
+router.post('/', withAuth, (req, res) => {
     Blog.create({
       title: req.body.title,
       blog_content: req.body.blog_content,

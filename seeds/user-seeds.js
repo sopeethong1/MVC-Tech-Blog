@@ -21,6 +21,7 @@ const userData = [
         github: "tomt",
         email: "tt@gmail.com",
         password: "p@ss1234"
+    },
     {
         username: "kim_p",
         twitter: "kim_p",

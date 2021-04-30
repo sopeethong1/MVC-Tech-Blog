@@ -10,6 +10,10 @@ async function newFormHandler(event) {
         title,
         post_content
       }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   
     if (response.ok) {
       document.location.replace('/dashboard');

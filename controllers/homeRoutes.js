@@ -1,51 +1,68 @@
-  
 const router = require('express').Router();
-const { Comment } = require('../models');
-const withAuth = require('../utils/auth');
+const { Post, User } = require('../models')
 
-router.get('/', (req, res) => {
-    Comment.findAll({})
-      .then(dbCommentData => res.json(dbCommentData))
-      .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-      });
-});
 
-router.post('/', withAuth, (req, res) => {
-
-  if (req.session) {
-    Comment.create({
-      comment_text: req.body.comment_text,
-      blog_id: req.body.blog_id,
+router.get('/', async (req, res) => {
+    try {
      
-      user_id: req.session.user_id,
-    })
-      .then(dbCommentData => res.json(dbCommentData))
-      .catch(err => {
-        console.log(err);
-        res.status(400).json(err);
+      const postData = await Post.findAll({
+        include: [
+          {
+            model: User,
+            attributes: ['name'],
+          },
+        ],
       });
-  }
-});
+  
+ 
+      const posts = postData.map((post) => post.get({ plain: true }));
+  
 
-router.delete('/:id', withAuth, (req, res) => {
-    Comment.destroy({
-        where: {
-          id: req.params.id
-        }
-      })
-        .then(dbCommentData => {
-          if (!dbCommentData) {
-            res.status(404).json({ message: 'No comment found with this id' });
-            return;
-          }
-          res.json(dbCommentData);
-        })
-        .catch(err => {
-          console.log(err);
-          res.status(500).json(err);
-        });
-});
+      res.render('homepage', { 
+        posts, 
+        logged_in: req.session.logged_in 
+      });
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+
+  router.get('/home', async (req, res) => {
+    try {
+
+      const postData = await Post.findAll({
+        include: [
+          {
+            model: User,
+            attributes: ['name'],
+          },
+        ],
+      });
+ 
+      const posts = postData.map((post) => post.get({ plain: true }));
+  
+
+      res.render('homepage', { 
+        posts, 
+        logged_in: req.session.logged_in 
+      });
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  });
+
+  router.get('/dashboard', async (req, res) => {
+    res.render('dashboard')
+  });
+
+  router.get('/login', async (req, res) => {
+    res.render('login')
+  });
+
+  router.get('/logout', async (req, res) => {
+    res.render('homepage')
+  });
+
+
 
 module.exports = router;

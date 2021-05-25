@@ -12,7 +12,7 @@ const { Comment, Post } = require('../../models');
 // });
 
 router.post('/:id', async (req, res) => {
-  console.log('you are in the post comment api route');
+  console.log('Success');
   const post_id = req.params.id;
   try {
     const newComment = await Comment.create({

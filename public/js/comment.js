@@ -1,30 +1,33 @@
-async function commentFormHandler(event) {
-    event.preventDefault();
-  
-    const comment_text = document.querySelector('textarea[name="comment-body"]').value.trim();
-  
-    const post_id = window.location.toString().split('/')[
-      window.location.toString().split('/').length - 1
-    ];
-  
-    if (comment_text) {
-        const response = await fetch('/api/comments', {
-          method: 'POST',
-          body: JSON.stringify({
-            post_id,
-            comment_text
-          }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-      
-        if (response.ok) {
-          document.location.reload();
-        } else {
-          alert(response.statusText);
+const addCommentFormHandler = async (event) => {
+  console.log('you are in the add comment form handler');
+  event.preventDefault();
+  const description = document.querySelector('#comment-desc').value.trim();
+  const button = document.querySelector('#newCommentButton');
+  const post_id = button.getAttribute('data-id');
+
+  console.log(description);
+
+  if (description) {
+    console.log('post_id', post_id);
+    const response = await fetch(`/api/comments/${post_id}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          description,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
         }
+      });
+
+      if (response.ok) {
+        console.log('you made it through comment js');
+        document.location.reload();
+        document.location.replace(`/posts/${post_id}`);
+      } else {
+        alert('Failed to add comment');
       }
-  }
-  
-  document.querySelector('.comment-form').addEventListener('submit', commentFormHandler);
+    };
+  };
+
+
+    document.querySelector('#new-comment-form').addEventListener('submit', addCommentFormHandler);

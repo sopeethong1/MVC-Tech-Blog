@@ -91,7 +91,7 @@ const sequelize = require('../../config/connection');
   });
 
   router.delete('/:id', async (req, res) => {
-    console.log('error');
+    console.log(err);
     try {
       const postData = await Posts.destroy({
         where: {

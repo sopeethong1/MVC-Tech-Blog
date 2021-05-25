@@ -4,45 +4,45 @@ const commentData = [
     {
         user_id: 55,
         post_id: 5,
-        comment_text: "I agree!"
+        description: "I agree!"
     },
     {
         user_id: 30,
         post_id: 30,
-        comment_text: "I disagree!"
+        description: "I disagree!"
     },
     {
         user_id: 55,
         post_id: 30,
-        comment_text: "My thoughts exactly!"
+        description: "My thoughts exactly!"
     },
     {
         user_id: 3,
         post_id: 5,
-        comment_text: "Thank you!"
+        description: "Thank you!"
     },
     {
         user_id: 3,
         post_id: 2,
-        comment_text: "stoppppp!"
+        description: "stoppppp!"
     },
     {
         user_id: 3,
         post_id: 30,
-        comment_text: "This is suprising"
+        description: "This is suprising"
     },
     {
         user_id: 5,
         post_id: 3,
-        comment_text: "Can't believe it"
+        description: "Can't believe it"
     },
     {
         user_id: 2,
         post_id: 55,
-        comment_text: "Try again!"
+        description: "Try again!"
     }
 ]
 
 const seedComments = () => Comment.bulkCreate(commentData);
 
-module.exports = seedComments;
+module.exports = commentData;
